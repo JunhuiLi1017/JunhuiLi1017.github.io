@@ -202,7 +202,6 @@ p{margin:0}
       <h1>Software</h1>
       <p class="sub">R packages I author or maintain, all available on CRAN.</p>
       <div class="pkgs" id="pkgs"></div>
-      <p class="sub">Earlier packages: gtWAS and ProbeDeveloper.</p>
       <h2>Try a Tm Estimate</h2>
       <div class="melt">
         <svg id="meltSvg" viewBox="0 0 520 215" role="img" aria-label="Melting curve for the sequence entered">
@@ -271,7 +270,17 @@ var SOFTWARE = [
    desc:"Joint mapping for quantitative trait loci: genotype probabilities and imputation, permutation-based thresholds under stepwise selection, and genome scans against a skeleton model.",
    install:'install.packages("JM4QTN")',
    links:[["GitHub","https://github.com/JunhuiLi1017/JM4QTN"],["CRAN","https://CRAN.R-project.org/package=JM4QTN"]],
-   tags:["QTL mapping","quantitative genetics","stepwise regression","R package"]}
+   tags:["QTL mapping","quantitative genetics","stepwise regression","R package"]},
+  {name:"gtWAS", meta:"CRAN \u00b7 GPL (\u2265 2)",
+   desc:"Genome and transcriptome wide association study. Maps QTL and eQTL and tests marker, expression and nested marker-by-expression effects with full versus reduced model F tests, using stepwise regression to select the final linear model.",
+   install:'install.packages("gtWAS")',
+   links:[["CRAN","https://CRAN.R-project.org/package=gtWAS"]],
+   tags:["QTL mapping","GWAS","quantitative genetics","stepwise regression","R package"]},
+  {name:"ProbeDeveloper", meta:"CRAN \u00b7 GPL (\u2265 2)",
+   desc:"Designs hybridization probes for target DNA sequences, selected by melting temperature computed with TmCalculator. The probes can capture specific genomic regions for FISH and next-generation sequencing experiments.",
+   install:'install.packages("ProbeDeveloper")',
+   links:[["CRAN","https://CRAN.R-project.org/package=ProbeDeveloper"]],
+   tags:["probe design","melting temperature","R package"]}
 ];
 
 var PUBS = [
