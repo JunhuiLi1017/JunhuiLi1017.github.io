@@ -52,7 +52,14 @@ p{margin:0}
 @media (max-width:860px){.page{grid-template-columns:minmax(0,1fr); gap:28px}}
 
 .author{display:flex; flex-direction:column; gap:10px; align-self:start; font-size:.9rem}
-.avatar{width:120px; height:120px; border-radius:50%; background:var(--surface); color:var(--accent); border:4px solid var(--accent); box-shadow:var(--shadow); display:grid; place-items:center; font-size:2.4rem; font-weight:700}
+.avatar{width:120px; height:120px; border-radius:50%; background:var(--surface); color:var(--accent); border:4px solid var(--accent); box-shadow:var(--shadow); display:grid; place-items:center; font-size:2.4rem; font-weight:700; overflow:hidden}
+.avatar img{width:100%; height:100%; object-fit:cover; display:block}
+.interest.lead{grid-column:1/-1; border-color:var(--accent)}
+.interest.lead h3{font-size:1.2rem}
+.path{display:flex; flex-wrap:wrap; gap:6px 8px; align-items:center; list-style:none; margin:4px 0 0; padding:0; font-size:.88rem; font-weight:700; color:var(--heading)}
+.path li{background:var(--tab-bg); border-radius:8px; padding:3px 10px}
+.path li.now{background:var(--tab-active); color:var(--tab-text)}
+.path li+li::before{content:none}
 .author h3{font-size:1.25rem; margin-top:6px}
 .author .bio{color:var(--ink)}
 .author ul{list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:7px}
@@ -151,9 +158,9 @@ p{margin:0}
 
 <div class="wrap page">
   <aside class="author">
-    <div class="avatar" aria-hidden="true">JL</div>
+    <div class="avatar"><img src="profile.jpg" alt="Portrait of Junhui Li" width="240" height="240"></div>
     <h3>Junhui Li</h3>
-    <p class="bio">I am a bioinformatician working on statistical software, reproducible genomics pipelines, and NGS data analysis for cancer biology.</p>
+    <p class="bio">I am a bioinformatician working on statistical software, genomics pipelines and NGS data analysis, and I am now moving my work toward deep learning.</p>
     <ul>
       <li>Worcester, Massachusetts</li>
       <li>Bioinformatician II, UMass Chan Medical School</li>
@@ -168,9 +175,10 @@ p{margin:0}
   <main class="main">
     <section class="view" id="research">
       <h1>Research</h1>
-      <p class="lede">I write R packages that turn statistical methods into tools other researchers can run, and I apply them to next-generation sequencing data from cancer, immunology and neurodegeneration studies.</p>
+      <p class="lede">My background is in biostatistics and statistical software for genomics. My current focus is deep learning: I am studying it in depth and bringing it into my work on next-generation sequencing data from cancer, immunology and neurodegeneration studies.</p>
       <h2>Research Interests</h2>
       <div class="interests">
+        <div class="interest lead"><h3>Deep Learning for Genomics</h3><p>This is where I am putting my learning time now. I am working through the core architectures from first principles, including forward and backward passes and optimization, with the goal of applying sequence and graph models to variant interpretation, regulatory genomics and multi-omics integration.</p><ul class="path" aria-label="Learning path"><li>CNN</li><li class="now">LSTM</li><li>Attention and Transformers</li><li>Graph neural networks</li></ul></div>
         <div class="interest"><h3>Model Selection Software</h3><p>Stepwise and best-subset regression across linear, logistic, Cox, Poisson, Gamma and negative binomial models, validated against SAS.</p></div>
         <div class="interest"><h3>Nucleic Acid Thermodynamics</h3><p>Genome-wide melting temperature profiling returned as GRanges, so Tm can sit beside ATAC-seq, RNA-seq and ChIP-seq signal as a quantitative feature.</p></div>
         <div class="interest"><h3>Variant Calling Pipelines</h3><p>Germline, somatic and mosaic variant detection from whole-genome and deep targeted sequencing, built as reproducible Snakemake workflows.</p></div>
