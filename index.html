@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Junhui Li, Bioinformatician at UMass Chan Medical School: R packages, genomics pipelines and publications.">
+<title>Junhui Li | Bioinformatics</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky nav, fixed profile rail on the left, single reading column on the right; a live melting curve opens the page. */
+:root{
+  --bg:#f4f8f9; --surface:#ffffff; --ink:#10242b; --muted:#55696f; --line:#d3dee1;
+  --accent:#0a6c7d; --accent-soft:#dcecef; --heat:#b4336a;
+  --display:"Bricolage Grotesque","IBM Plex Sans",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1a1f; --surface:#142329; --ink:#e4eef0; --muted:#93a8ae; --line:#263b42;
+    --accent:#5cc4d4; --accent-soft:#16333a; --heat:#f08ab4; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1a1f; --surface:#142329; --ink:#e4eef0; --muted:#93a8ae; --line:#263b42;
+  --accent:#5cc4d4; --accent-soft:#16333a; --heat:#f08ab4; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth; scroll-padding-top:72px}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg); color:var(--ink); font-family:var(--body); font-size:16px; line-height:1.6}
+body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); z-index:10; background:var(--bg)}
+a{color:var(--accent); text-underline-offset:3px}
+a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+h1,h2,h3{font-family:var(--display); text-wrap:balance; margin:0; line-height:1.15}
+p{margin:0}
+
+.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:9; background:var(--bg); border-bottom:1px solid var(--line)}
+.topbar-in,.page{max-width:1120px; margin:0 auto; padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px))}
+.topbar-in{display:flex; align-items:center; gap:8px 20px; flex-wrap:wrap; padding-block:12px}
+.brand{font-family:var(--display); font-weight:700; font-size:1.05rem; color:var(--ink); text-decoration:none; margin-right:auto}
+.nav{display:flex; gap:4px 18px; flex-wrap:wrap}
+.nav a{color:var(--muted); text-decoration:none; font-size:.92rem; font-weight:500}
+.nav a:hover{color:var(--accent)}
+.theme-btn{font:500 .8rem var(--mono); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:5px 10px; cursor:pointer}
+
+.page{display:grid; grid-template-columns:250px minmax(0,1fr); gap:48px; padding-block:36px 64px}
+@media (max-width:820px){.page{grid-template-columns:minmax(0,1fr); gap:28px}}
+
+.rail{display:flex; flex-direction:column; gap:14px; align-self:start}
+@media (min-width:821px){.rail{position:sticky; top:calc(env(safe-area-inset-top,0px) + 84px)}}
+.mono-mark{width:84px; height:84px; border-radius:50%; background:var(--accent); color:var(--bg); display:grid; place-items:center; font:700 1.9rem var(--display)}
+.rail h1{font-size:1.5rem}
+.rail .role{color:var(--muted); font-size:.92rem}
+.rail ul{list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:.9rem}
+.rail .facts{color:var(--muted); border-top:1px solid var(--line); padding-top:14px}
+.rail .links{border-top:1px solid var(--line); padding-top:14px}
+.email{font:400 .8rem var(--mono); color:var(--ink); overflow-wrap:anywhere; user-select:all}
+.copy{font:500 .72rem var(--mono); color:var(--accent); background:none; border:1px solid var(--line); border-radius:5px; padding:2px 8px; cursor:pointer}
+
+.main{display:flex; flex-direction:column; gap:56px; min-width:0}
+.eyebrow{font:500 .74rem var(--mono); letter-spacing:.09em; text-transform:uppercase; color:var(--accent)}
+.sec{display:flex; flex-direction:column; gap:20px; min-width:0}
+.sec h2{font-size:1.75rem}
+.lede{font-size:1.08rem; max-width:62ch}
+.sub{color:var(--muted); max-width:65ch; font-size:.95rem}
+
+.melt{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:20px; display:grid; grid-template-columns:minmax(0,1.2fr) minmax(0,1fr); gap:24px; align-items:center}
+@media (max-width:700px){.melt{grid-template-columns:minmax(0,1fr)}}
+.melt svg{width:100%; height:auto; display:block}
+.melt .axis{stroke:var(--line); stroke-width:1; fill:none}
+.melt .curve{stroke:var(--accent); stroke-width:2.5; fill:none}
+.melt .area{fill:var(--accent-soft); stroke:none}
+.melt .tmline{stroke:var(--heat); stroke-width:1.5; stroke-dasharray:4 4; fill:none}
+.melt .tmdot{fill:var(--heat)}
+.melt text{font:400 11px var(--mono); fill:var(--muted)}
+.melt text.tmlab{fill:var(--heat); font-weight:500}
+.melt-side{display:flex; flex-direction:column; gap:12px; min-width:0}
+.melt-side label{font:500 .74rem var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted)}
+.melt-side input{width:100%; font:400 .9rem var(--mono); color:var(--ink); background:var(--bg); border:1px solid var(--line); border-radius:6px; padding:9px 10px}
+.readout{display:flex; gap:22px; flex-wrap:wrap; font-variant-numeric:tabular-nums}
+.readout div{display:flex; flex-direction:column}
+.readout b{font:700 1.5rem var(--display)}
+.readout b.tm{color:var(--heat)}
+.readout span{font:400 .72rem var(--mono); color:var(--muted)}
+.note{font-size:.82rem; color:var(--muted)}
+
+.interests{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:0 36px}
+@media (max-width:640px){.interests{grid-template-columns:minmax(0,1fr)}}
+.interest{padding:16px 0; border-top:1px solid var(--line); display:flex; flex-direction:column; gap:6px}
+.interest h3{font-size:1.05rem}
+.interest p{font-size:.93rem; color:var(--muted)}
+
+.cloud{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:baseline}
+.term{font-family:var(--body); color:var(--ink); background:var(--surface); border:1px solid var(--line); border-radius:999px; padding:3px 12px; cursor:pointer; line-height:1.4}
+.term:hover{border-color:var(--accent)}
+.term[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--bg)}
+.hits{border-left:2px solid var(--accent); padding-left:16px; display:flex; flex-direction:column; gap:10px; font-size:.93rem}
+.hits .kind{font:500 .7rem var(--mono); letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin-right:8px}
+
+.pkgs{display:flex; flex-direction:column}
+.pkg{display:grid; grid-template-columns:170px minmax(0,1fr); gap:6px 24px; padding:20px 0; border-top:1px solid var(--line)}
+@media (max-width:640px){.pkg{grid-template-columns:minmax(0,1fr)}}
+.pkg h3{font-size:1.2rem}
+.pkg .meta{font:400 .76rem var(--mono); color:var(--muted); margin-top:4px}
+.pkg .body{display:flex; flex-direction:column; gap:10px; min-width:0}
+.pkg p{font-size:.95rem; max-width:65ch}
+.code{display:flex; align-items:center; gap:10px; background:var(--accent-soft); border-radius:6px; padding:7px 10px; max-width:100%}
+.code code{font:400 .82rem var(--mono); color:var(--ink); overflow-x:auto; white-space:nowrap; min-width:0; flex:1}
+.pkg .lnk{display:flex; gap:16px; flex-wrap:wrap; font-size:.88rem}
+
+.pubs{list-style:none; margin:0; padding:0; display:flex; flex-direction:column}
+.pub{display:grid; grid-template-columns:56px minmax(0,1fr); gap:16px; padding:16px 0; border-top:1px solid var(--line)}
+.pub .yr{font:500 .85rem var(--mono); color:var(--accent); font-variant-numeric:tabular-nums; padding-top:2px}
+.pub .t{font-weight:600}
+.pub .a{font-size:.88rem; color:var(--muted)}
+.pub .a b{color:var(--ink); font-weight:600}
+.pub .j{font-size:.88rem; font-style:italic}
+.pub .body{display:flex; flex-direction:column; gap:3px; min-width:0}
+footer{border-top:1px solid var(--line); padding-top:18px; font-size:.82rem; color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top">Junhui Li</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#research">Research</a>
+      <a href="#topics">Topic map</a>
+      <a href="#software">Software</a>
+      <a href="#publications">Publications</a>
+      <a href="#contact">Contact</a>
+    </nav>
+    <button class="theme-btn" id="themeBtn" type="button">Theme</button>
+  </div>
+</header>
+
+<div class="page" id="top">
+  <aside class="rail">
+    <div class="mono-mark" aria-hidden="true">JL</div>
+    <h1>Junhui Li</h1>
+    <p class="role">Bioinformatician II, MCCB Bioinformatics Core<br>UMass Chan Medical School</p>
+    <p style="font-size:.93rem">I build statistical software and reproducible genomics pipelines, and analyze sequencing data with cancer biology labs.</p>
+    <ul class="facts">
+      <li>M.A. Biostatistics and Quantitative Genetics, China Agricultural University</li>
+      <li>B.S. Tea Science, Anhui Agricultural University</li>
+      <li>Worcester, Massachusetts</li>
+    </ul>
+    <ul class="links">
+      <li><a href="https://github.com/JunhuiLi1017">GitHub</a></li>
+      <li id="scholarItem" hidden><a id="scholarLink" href="#">Google Scholar</a></li>
+      <li><a href="https://orcid.org/0000-0003-3973-1700">ORCID</a></li>
+      <li><a href="https://www.umassmed.edu/mccb/bioinformatics-core/bioinformaticians/">MCCB Bioinformatics Core</a></li>
+    </ul>
+  </aside>
+
+  <main class="main">
+    <section class="sec">
+      <span class="eyebrow">Statistical computing for genomics</span>
+      <p class="lede">I write R packages that turn statistical methods into tools other researchers can run, and I apply them to next-generation sequencing data from cancer, immunology and neurodegeneration studies.</p>
+      <div class="melt">
+        <svg id="meltSvg" viewBox="0 0 520 215" role="img" aria-label="Melting curve for the sequence entered">
+          <path class="area" id="mArea" d=""/>
+          <path class="axis" d="M50 20V170H500"/>
+          <g id="mTicks"></g>
+          <path class="curve" id="mCurve" d=""/>
+          <path class="tmline" id="mLine" d=""/>
+          <circle class="tmdot" id="mDot" r="4.5" cx="0" cy="0"/>
+          <text class="tmlab" id="mLab" x="0" y="14" text-anchor="middle"></text>
+          <text x="275" y="208" text-anchor="middle">Temperature (°C)</text>
+          <text x="14" y="95" text-anchor="middle" transform="rotate(-90 14 95)">Fraction duplex</text>
+        </svg>
+        <div class="melt-side">
+          <label for="seqIn">Try an oligo (A, C, G, T)</label>
+          <input id="seqIn" type="text" value="ATGCGTACGTTAGCCTAGGCTA" spellcheck="false" autocomplete="off" autocapitalize="characters">
+          <div class="readout">
+            <div><b class="tm" id="rTm">0</b><span>Tm, °C</span></div>
+            <div><b id="rGc">0</b><span>GC, %</span></div>
+            <div><b id="rLen">0</b><span>length, nt</span></div>
+          </div>
+          <p class="note">This demo uses a basic GC-content estimate (Wallace rule under 14 nt, Marmur-Doty above) and an illustrative two-state curve. <a href="#software">TmCalculator</a> computes Tm with nearest-neighbor thermodynamics and salt correction, genome-wide.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="sec" id="research">
+      <span class="eyebrow">Research</span>
+      <h2>Research interests</h2>
+      <div class="interests">
+        <div class="interest"><h3>Model selection software</h3><p>Stepwise and best-subset regression across linear, logistic, Cox, Poisson, Gamma and negative binomial models, validated against SAS.</p></div>
+        <div class="interest"><h3>Nucleic acid thermodynamics</h3><p>Genome-wide melting temperature profiling returned as GRanges, so Tm can sit beside ATAC-seq, RNA-seq and ChIP-seq signal as a quantitative feature.</p></div>
+        <div class="interest"><h3>Variant calling pipelines</h3><p>Germline, somatic and mosaic variant detection from whole-genome and deep targeted sequencing, built as reproducible Snakemake workflows.</p></div>
+        <div class="interest"><h3>Tumor immunology</h3><p>Transcriptomic analysis for studies of cellular senescence, the SASP, STING signaling and immunotherapy response in pancreatic and prostate cancer.</p></div>
+        <div class="interest"><h3>High-throughput screens and single-cell QC</h3><p>Zeta statistics for scoring hits in multi-dimensional RNAi screens and separating high-quality cells from damaged ones in scRNA-seq.</p></div>
+        <div class="interest"><h3>Quantitative genetics</h3><p>Joint QTL mapping, GWAS and genomic selection, from maize and triticale breeding populations to pleiotropic loci.</p></div>
+      </div>
+    </section>
+
+    <section class="sec" id="topics">
+      <span class="eyebrow">Topic map</span>
+      <h2>Themes across papers and packages</h2>
+      <p class="sub">Terms are sized by how many items mention them. Select a term to list the matching work.</p>
+      <div class="cloud" id="cloud"></div>
+      <div class="hits" id="hits" hidden></div>
+    </section>
+
+    <section class="sec" id="software">
+      <span class="eyebrow">Software</span>
+      <h2>R packages</h2>
+      <div class="pkgs" id="pkgs"></div>
+      <p class="sub">Earlier packages: gtWAS and ProbeDeveloper.</p>
+    </section>
+
+    <section class="sec" id="publications">
+      <span class="eyebrow">Publications</span>
+      <h2>Publications</h2>
+      <ul class="pubs" id="pubs"></ul>
+    </section>
+
+    <section class="sec" id="contact">
+      <span class="eyebrow">Contact</span>
+      <h2>Get in touch</h2>
+      <p class="sub">Department of Molecular, Cell and Cancer Biology, UMass Chan Medical School, 364 Plantation Street, Worcester, MA 01605.</p>
+      <p><span class="email" id="emailTxt">junhui.li11@umassmed.edu</span> <button class="copy" type="button" data-copy="emailTxt">Copy</button></p>
+      <p class="sub">Peer reviewer for Advanced Science, Computational Biology and Chemistry, and BMC Genomics. Bug reports and feature requests are welcome on each package's GitHub issue tracker.</p>
+      <footer>© 2026 Junhui Li</footer>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ---------- Edit your content here ---------- */
+var SCHOLAR_URL = "https://scholar.google.com/citations?user=X9z2jKQAAAAJ&hl=en"; // paste your Google Scholar profile URL to show the link
+
+var SOFTWARE = [
+  {name:"TmCalculator", meta:"CRAN · Applied Sciences 2026",
+   desc:"Genome-wide nucleic acid melting temperature profiling and multi-omics integration. Twenty-seven nearest-neighbor parameter sets for DNA/DNA, RNA/RNA and RNA/DNA duplexes, with results returned as GRanges.",
+   install:'install.packages("TmCalculator")',
+   links:[["GitHub","https://github.com/JunhuiLi1017/TmCalculator"],["CRAN","https://CRAN.R-project.org/package=TmCalculator"]],
+   tags:["melting temperature","nucleic acid thermodynamics","multi-omics","R package"]},
+  {name:"StepReg", meta:"CRAN · The R Journal 2026",
+   desc:"Stepwise regression in one interface: forward, backward, bidirectional and best-subset selection with AIC, AICc, BIC, Cp, HQ, adjusted R², SL and SBC, plus selection plots and HTML, DOCX, XLSX and PPTX reports.",
+   install:'install.packages("StepReg")',
+   links:[["GitHub","https://github.com/JunhuiLi1017/StepReg"],["CRAN","https://CRAN.R-project.org/package=StepReg"],["Paper","https://journal.r-project.org/articles/RJ-2026-005/"]],
+   tags:["stepwise regression","model selection","biostatistics","R package"]},
+  {name:"StepRegShiny", meta:"CRAN · companion to StepReg",
+   desc:"A point-and-click interface for StepReg: upload data, choose the regression type, strategy and metric, and export the results without writing code.",
+   install:'install.packages("StepRegShiny")',
+   links:[["GitHub","https://github.com/JunhuiLi1017/StepRegShiny"],["Live app","https://junhuili1017.shinyapps.io/StepRegShiny/"]],
+   tags:["stepwise regression","Shiny","R package"]},
+  {name:"ZetaSuite", meta:"CRAN · Genome Biology 2022",
+   desc:"Scores hits from two-dimensional RNAi screens with Zeta statistics and screen strength, and separates rare cells from damaged ones in single-cell RNA-seq. Includes a Shiny app.",
+   install:'install.packages("ZetaSuite")',
+   links:[["GitHub","https://github.com/JunhuiLi1017/ZetaSuite"],["CRAN","https://CRAN.R-project.org/package=ZetaSuite"]],
+   tags:["high-throughput screening","single-cell RNA-seq","Shiny","R package"]},
+  {name:"JM4QTN", meta:"CRAN · GPL-2 · 2026",
+   desc:"Joint mapping for quantitative trait loci: genotype probabilities and imputation, permutation-based thresholds under stepwise selection, and genome scans against a skeleton model.",
+   install:'install.packages("JM4QTN")',
+   links:[["GitHub","https://github.com/JunhuiLi1017/JM4QTN"],["CRAN","https://CRAN.R-project.org/package=JM4QTN"]],
+   tags:["QTL mapping","quantitative genetics","stepwise regression","R package"]}
+];
+
+var PUBS = [
+  {year:2026, title:"TmCalculator: An R Package for Genome-Wide Nucleic Acid Melting Temperature Profiling and Multi-Omics Integration",
+   authors:"Li J, Zhu LJ", venue:"Applied Sciences 16(20):10400, 2026",
+   tags:["melting temperature","nucleic acid thermodynamics","multi-omics","R package"]},
+  {year:2026, title:"StepReg: A Comprehensive and Intuitive R Package for Stepwise Regression Analysis",
+   authors:"Li J, Hu K, Lu X, Sotelo CB, Nayak S, Lodato MA, Liu W, Zhu LJ",
+   venue:"The R Journal 18(1):188-205, 2026", url:"https://journal.r-project.org/articles/RJ-2026-005/",
+   tags:["stepwise regression","model selection","biostatistics","R package"]},
+  {year:2026, title:"P21-positive senescent stromal cells promote prostate cancer immune suppression and progression that can be reversed by senolytic therapy",
+   authors:"Zhou L, DeMarco KD, Murphy KC, Wu Z, Li J, Johnson C, Liu B, Giwa HK, et al.",
+   venue:"Cancer Discovery 16(3):571-591, 2026",
+   tags:["prostate cancer","cellular senescence","tumor immunology"]},
+  {year:2026, title:"Insulin receptor substrate 2 (IRS2) confers resistance to PI3K pathway inhibition in PIK3CA mutant breast cancer",
+   authors:"Lero MW, Morgan JS, Card MA, Zhu LJ, Li J, Li R, Bui QT, Mohlmann E, Goel HL, Shaw LM",
+   venue:"Journal of Biological Chemistry 302(10), 2026",
+   tags:["breast cancer"]},
+  {year:2025, title:"PPT1 is a negative regulator of STING signaling in cancer cells and its inhibition reactivates immune surveillance in cold tumors",
+   authors:"Chowdhury SR, Parikh CN, Kaur AN, DeMarco KD, Giwa HK, Mishra AK, Murphy KC, Zhou L, Ma B, Ye T, Li J, Liu H, Bai S, Johnson C, Simin K, Pitarresi JR, Zhu LJ, Watson EV, Kelliher MA, Green MR, Fitzgerald KA, Ruscetti M",
+   venue:"PNAS 122(39):e2514948122, 2025", url:"https://doi.org/10.1073/pnas.2514948122",
+   tags:["STING signaling","innate immunity","tumor immunology","immunotherapy"]},
+  {year:2025, title:"MYC and p53 alterations cooperate through VEGF signaling to repress cytotoxic T-cell and immunotherapy responses in prostate cancer",
+   authors:"Murphy KC, DeMarco KD, Zhou L, Peura J, Giwa HK, Lopez-Diaz Y, Ho YJ, Li J, Bai S, Simin K, Zhu LJ, Pitarresi JR, Mercurio AM, Ruscetti M",
+   venue:"Cancer Research 85(22):4359-4379, 2025",
+   tags:["prostate cancer","tumor immunology","immunotherapy"]},
+  {year:2025, title:"The O-glycosyltransferase C1GALT1 promotes EWSR1::FLI1 expression and is a therapeutic target for Ewing sarcoma",
+   authors:"Banday S, Mishra AK, Rashid R, Ye T, Ali A, Li J, Yustein JT, Kelliher MA, et al.",
+   venue:"Nature Communications 16(1):1267, 2025",
+   tags:["Ewing sarcoma"]},
+  {year:2024, title:"Nanoparticle delivery of innate immune agonists combined with senescence-inducing agents promotes T cell control of pancreatic cancer",
+   authors:"Chibaya L, DeMarco KD, Lusi CF, Kane GI, Brassil ML, Parikh CN, Murphy KC, Chowdhury SR, Li J, Ma B, Naylor TE, Cerrutti J, Mori H, Diaz-Infante M, Peura J, Pitarresi JR, Zhu LJ, Fitzgerald KA, Atukorale PU, Ruscetti M",
+   venue:"Science Translational Medicine 16(762):eadj9366, 2024", url:"https://doi.org/10.1126/scitranslmed.adj9366",
+   tags:["pancreatic cancer","cellular senescence","STING signaling","innate immunity","tumor immunology"]},
+  {year:2023, title:"EZH2 inhibition remodels the inflammatory senescence-associated secretory phenotype to potentiate pancreatic cancer immune surveillance",
+   authors:"Chibaya L, Murphy KC, DeMarco KD, Gopalan S, Liu H, Parikh CN, Lopez-Diaz Y, Faulkner M, Li J, Morris JP, Ho YJ, Chana SK, Simon J, Luan W, Kulick A, de Stanchina E, Simin K, Zhu LJ, Fazzio TG, Lowe SW, Ruscetti M",
+   venue:"Nature Cancer 4(6):872-892, 2023",
+   tags:["pancreatic cancer","cellular senescence","tumor immunology"]},
+  {year:2022, title:"ZetaSuite: computational analysis of two-dimensional high-throughput data from multi-target screens and single-cell transcriptomics",
+   authors:"Hao Y, Zhang S, Shao C, Li J, Zhao G, Zhang DE, Fu XD",
+   venue:"Genome Biology 23(1):162, 2022",
+   tags:["high-throughput screening","single-cell RNA-seq","R package"]},
+  {year:2021, title:"Genetic dissection of hybrid performance and heterosis for yield-related traits in maize",
+   authors:"Li D, Zhou Z, Lu X, Jiang Y, Li G, Li J, Wang H, Chen S, Li X, Würschum T, et al.",
+   venue:"Frontiers in Plant Science 12:774478, 2021",
+   tags:["quantitative genetics","crop genetics"]},
+  {year:2016, title:"Enhancing phosphorus uptake efficiency through QTL-based selection for root system architecture in maize",
+   authors:"Gu R, Chen F, Long L, Cai H, Liu Z, Yang J, Wang L, Li H, Li J, Liu W, et al.",
+   venue:"Journal of Genetics and Genomics 43(11):663-672, 2016",
+   tags:["QTL mapping","quantitative genetics","crop genetics"]},
+  {year:2016, title:"Ploidy effect and genetic architecture exploration of stalk traits using DH and its corresponding haploid populations in maize",
+   authors:"Meng Y, Li J, Liu J, Hu H, Li W, Liu W, Chen S",
+   venue:"BMC Plant Biology 16(1):50, 2016",
+   tags:["QTL mapping","quantitative genetics","crop genetics"]},
+  {year:2015, title:"Evaluation of genomic approaches for marker-based improvement of lodging tolerance in triticale",
+   authors:"Liu W, Leiser WL, Maurer HP, Li J, Weissmann S, Hahn V, Würschum T",
+   venue:"Plant Breeding 134(4):416-422, 2015",
+   tags:["quantitative genetics","crop genetics"]}
+];
+PUBS.forEach(function(p){ if(!p.url) p.url="https://scholar.google.com/scholar?q="+encodeURIComponent('"'+p.title+'"'); });
+/* ---------- End of content ---------- */
+
+function el(tag, cls, text){var e=document.createElement(tag); if(cls)e.className=cls; if(text!=null)e.textContent=text; return e;}
+function link(label, href){var a=el("a",null,label); a.href=href; a.target="_blank"; a.rel="noopener"; return a;}
+
+if(SCHOLAR_URL){document.getElementById("scholarLink").href=SCHOLAR_URL; document.getElementById("scholarItem").hidden=false;}
+
+/* Software */
+var pkgs=document.getElementById("pkgs");
+SOFTWARE.forEach(function(s,i){
+  var row=el("div","pkg"), left=el("div"), body=el("div","body");
+  left.appendChild(el("h3",null,s.name)); left.appendChild(el("div","meta",s.meta));
+  body.appendChild(el("p",null,s.desc));
+  var code=el("div","code"), c=el("code",null,s.install); c.id="inst"+i;
+  var b=el("button","copy","Copy"); b.type="button"; b.dataset.copy=c.id;
+  code.appendChild(c); code.appendChild(b); body.appendChild(code);
+  var l=el("div","lnk"); s.links.forEach(function(x){l.appendChild(link(x[0],x[1]));}); body.appendChild(l);
+  row.appendChild(left); row.appendChild(body); pkgs.appendChild(row);
+});
+
+/* Publications */
+function authorNodes(str){
+  var span=el("div","a");
+  str.split(", ").forEach(function(n,i,arr){
+    if(n==="Li J") span.appendChild(el("b",null,n)); else span.appendChild(document.createTextNode(n));
+    if(i<arr.length-1) span.appendChild(document.createTextNode(", "));
+  });
+  return span;
+}
+var pubs=document.getElementById("pubs");
+PUBS.slice().sort(function(a,b){return b.year-a.year;}).forEach(function(p){
+  var li=el("li","pub"), body=el("div","body");
+  li.appendChild(el("div","yr",String(p.year)));
+  var t=el("div","t"); t.appendChild(link(p.title,p.url)); body.appendChild(t);
+  body.appendChild(authorNodes(p.authors)); body.appendChild(el("div","j",p.venue));
+  li.appendChild(body); pubs.appendChild(li);
+});
+
+/* Topic map */
+var counts={}, items=[];
+PUBS.forEach(function(p){items.push({kind:"Paper",label:p.title,url:p.url,tags:p.tags});});
+SOFTWARE.forEach(function(s){items.push({kind:"Package",label:s.name,url:s.links[0][1],tags:s.tags});});
+items.forEach(function(it){it.tags.forEach(function(t){counts[t]=(counts[t]||0)+1;});});
+var cloud=document.getElementById("cloud"), hits=document.getElementById("hits"), active=null;
+Object.keys(counts).sort(function(a,b){return counts[b]-counts[a]||a.localeCompare(b);}).forEach(function(t){
+  var b=el("button","term",t); b.type="button"; b.setAttribute("aria-pressed","false");
+  b.style.fontSize=(0.82+Math.min(counts[t],5)*0.11)+"rem";
+  b.addEventListener("click",function(){
+    var on=active!==t; active=on?t:null;
+    Array.prototype.forEach.call(cloud.children,function(c){c.setAttribute("aria-pressed",String(on&&c===b));});
+    hits.textContent=""; hits.hidden=!on;
+    if(on) items.filter(function(it){return it.tags.indexOf(t)>-1;}).forEach(function(it){
+      var d=el("div"); d.appendChild(el("span","kind",it.kind)); d.appendChild(link(it.label,it.url)); hits.appendChild(d);
+    });
+  });
+  cloud.appendChild(b);
+});
+
+/* Copy buttons */
+document.addEventListener("click",function(e){
+  var b=e.target.closest("[data-copy]"); if(!b) return;
+  var src=document.getElementById(b.dataset.copy), txt=src.textContent;
+  function done(){b.textContent="Copied"; setTimeout(function(){b.textContent="Copy";},1400);}
+  function fallback(){var r=document.createRange(); r.selectNodeContents(src); var s=getSelection(); s.removeAllRanges(); s.addRange(r); b.textContent="Selected";}
+  try{navigator.clipboard.writeText(txt).then(done,fallback);}catch(err){fallback();}
+});
+
+/* Theme toggle */
+(function(){
+  var root=document.documentElement, btn=document.getElementById("themeBtn");
+  function isDark(){var t=root.getAttribute("data-theme"); return t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches;}
+  function label(){btn.textContent=isDark()?"Light":"Dark";}
+  try{var saved=localStorage.getItem("theme"); if(saved==="dark"||saved==="light") root.setAttribute("data-theme",saved);}catch(e){}
+  label();
+  btn.addEventListener("click",function(){var next=isDark()?"light":"dark"; root.setAttribute("data-theme",next); try{localStorage.setItem("theme",next);}catch(e){} label();});
+})();
+
+/* Melting curve demo */
+(function(){
+  var X0=50,X1=500,Y0=170,YH=150,T0=30,T1=100;
+  function x(T){return X0+(T-T0)/(T1-T0)*(X1-X0);}
+  function y(f){return Y0-f*YH;}
+  var ticks=document.getElementById("mTicks"), NS="http://www.w3.org/2000/svg";
+  [40,60,80,100].forEach(function(T){
+    var t=document.createElementNS(NS,"text"); t.setAttribute("x",x(T)); t.setAttribute("y",186); t.setAttribute("text-anchor","middle"); t.textContent=T; ticks.appendChild(t);
+  });
+  [[0,"0"],[0.5,"0.5"],[1,"1"]].forEach(function(p){
+    var t=document.createElementNS(NS,"text"); t.setAttribute("x",44); t.setAttribute("y",y(p[0])+4); t.setAttribute("text-anchor","end"); t.textContent=p[1]; ticks.appendChild(t);
+  });
+  function tmOf(s){
+    var n=s.length, gc=(s.match(/[GC]/g)||[]).length, at=n-gc;
+    if(!n) return null;
+    return {tm:n<14?2*at+4*gc:64.9+41*(gc-16.4)/n, gc:100*gc/n, n:n};
+  }
+  var inp=document.getElementById("seqIn");
+  function draw(){
+    var s=inp.value.toUpperCase().replace(/[^ACGT]/g,""), r=tmOf(s);
+    document.getElementById("rTm").textContent=r?r.tm.toFixed(1):"n/a";
+    document.getElementById("rGc").textContent=r?r.gc.toFixed(0):"n/a";
+    document.getElementById("rLen").textContent=r?r.n:0;
+    var tm=r?Math.max(T0+4,Math.min(T1-4,r.tm)):65, d="";
+    for(var T=T0;T<=T1;T+=0.5){var f=1/(1+Math.exp((T-tm)/3)); d+=(T===T0?"M":"L")+x(T).toFixed(1)+" "+y(f).toFixed(1);}
+    document.getElementById("mCurve").setAttribute("d",d);
+    document.getElementById("mArea").setAttribute("d",d+"L"+X1+" "+Y0+"L"+X0+" "+Y0+"Z");
+    document.getElementById("mLine").setAttribute("d","M"+x(tm).toFixed(1)+" 22V"+Y0);
+    var dot=document.getElementById("mDot"); dot.setAttribute("cx",x(tm)); dot.setAttribute("cy",y(0.5));
+    var lab=document.getElementById("mLab"); lab.setAttribute("x",Math.max(90,Math.min(460,x(tm)))); lab.textContent=r?"Tm "+r.tm.toFixed(1)+" °C":"";
+  }
+  inp.addEventListener("input",draw); draw();
+})();
+</script>
+
+</body>
+</html>
